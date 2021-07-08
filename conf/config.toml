@@ -1,0 +1,23 @@
+[scheduler]
+thread_num = 20
+process_num = 5
+coalesce = false
+max_instances = 5
+
+[log]
+prefix = "scheduler"
+level = 4
+path = "./log"
+
+[[jobs]]
+trigger = "interval"
+id = "test_thread"
+func = "src.test:test_thread"
+seconds = 2
+
+[[jobs]]
+trigger = "interval"
+id = "test_process"
+func = "src.test:test_process"
+seconds = 3
+executor = "processpool"
