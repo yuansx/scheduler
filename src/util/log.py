@@ -230,8 +230,9 @@ class LogStream(logging.Handler):
             self.handleError(record)
 
 
-def add_logger(name):
-    level = CLog.LEVEL_MAP[int(os.environ.get('log_level', '4'))]
+def add_logger(name, level=None):
+    level = level or CLog.LEVEL_MAP[int(os.environ.get('log_level', '4'))]
+    log_info(level)
     _logger = logging.getLogger(name)
     _logger.setLevel(level)
     _logger.propagate = False

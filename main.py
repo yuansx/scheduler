@@ -10,6 +10,7 @@ from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from apscheduler.executors.gevent import GeventExecutor
 from apscheduler.events import *
 from src.util.log import log_init, log_info, add_logger
+import logging
 from pytz import utc
 import toml
 import os
@@ -44,7 +45,7 @@ class CMain(object):
             'main_pid': str(os.getpid()),
         })
         log_init(prefix, log_path, prefix, log_level)
-        add_logger('apscheduler')
+        add_logger('apscheduler', logging.WARNING)
 
     def _handler_event(self, event):
         pass
