@@ -1,0 +1,14 @@
+[db]
+    host = "127.0.0.1"
+    port = 3306
+    user = "root"
+    password = "Derek@12345"
+    db = "test"
+
+[ro_db]
+    host = "127.0.0.1"
+    port = 3306
+    user = "read"
+    password = "Read@12345"
+    db = "test"
+
