@@ -15,6 +15,7 @@ from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from apscheduler.executors.gevent import GeventExecutor
 from apscheduler.events import *
 from src.util.log import log_init, log_info, add_logger
+from src.util.util import get_ip_address
 from src import config
 import logging
 from pytz import utc
@@ -45,6 +46,28 @@ class CMain(object):
         pass
         # self._scheduler.print_jobs()
 
+    @staticmethod
+    def _init_master_config():
+        if_name = config['common'].get('master', {}).get('interface')
+        if if_name:
+            os.environ['address'] = get_ip_address(if_name)
+        else:
+            address = None
+            for if_name in ('eth0', 'en0', 'eth1', ):
+                try:
+                    address = get_ip_address(if_name)
+                except:
+                    continue
+                if address:
+                    break
+            if address:
+                os.environ['address'] = address
+            else:
+                raise Exception('Not found address')
+        port = config['common'].get('master', {}).get('port', 7070)
+        os.environ['port'] = str(port)
+        os.environ['auth_key'] = config['common'].get('auth_key', 'derek')
+
     def _init_scheduler(self):
         scheduler = config["common"].get("scheduler", {})
         executors = {
@@ -74,6 +97,7 @@ class CMain(object):
             self._add_job(job)
 
     def _init(self):
+        self._init_address()
         self._init_log()
         self._init_scheduler()
         self._load_jobs()
@@ -81,7 +105,6 @@ class CMain(object):
     def main(self):
         self._init()
         try:
-            log_info('scheduler init success')
             self._scheduler.start().join()
         except:
             self._scheduler.shutdown()
