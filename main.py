@@ -20,12 +20,18 @@ from src import config
 import logging
 from pytz import utc
 import copy
+import signal
+
+
+def handler_exit(sig_id, frame):
+    os.environ['terminate'] = 'true'
 
 
 class CMain(object):
     def __init__(self):
         self._scheduler = GeventScheduler()
         self._jobs = {}
+        self._workers = {}
 
     @staticmethod
     def _init_log():
@@ -96,7 +102,51 @@ class CMain(object):
                 continue
             self._add_job(job)
 
+    def _import_class(func):
+        parts = module.split(":", 1)
+        if len(parts) == 1:
+            module, obj = module, "run"
+        else:
+            module, obj = parts[0], parts[1]
+
+        try:
+            __import__(module)
+        except ImportError:
+            if module.endswith(".py") and os.path.exists(module):
+                raise ImportError("Failed to find application, did "
+                    "you mean '%s:%s'?" % (module.rsplit(".", 1)[0], obj))
+            else:
+                raise
+
+        mod = sys.modules[module]
+
+        try:
+            app = eval(obj, mod.__dict__)
+        except NameError:
+            raise AppImportError("Failed to find application: %r" % module)
+
+        if app is None:
+            raise AppImportError("Failed to find application object: %r" % obj)
+
+        if not callable(app):
+            raise AppImportError("Application object must be callable.")
+        return app
+
+
+    def _init_worker(self):
+        job_list = config["base"].get("job_list", [])
+        for worker in config["common"].get("manager", {}).get("worker", [])
+            if {'id', 'func'} - set(worker.keys()):
+                continue
+            if job_list and worker['id'] not in job_list:
+                continue
+            self._workers[name] = []
+
+    def _init_signal():
+        signal.signal(signal.SIGTERM, )
+
     def _init(self):
+        self._init_worker()
         self._init_master_config()
         self._init_log()
         self._init_scheduler()

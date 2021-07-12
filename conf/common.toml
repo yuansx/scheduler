@@ -9,6 +9,26 @@
     level = 4
     path = "./log"
 
+[manager]
+interface = "eth0"
+port = 7070
+
+[[manager.queue]]
+id = "test_thread"
+size = 1024
+func = "get_test_task_queue"
+
+
+[[manager.queue]]
+id = "test_thread"
+size = 1024
+func = "get_test_result_queue"
+
+[[manager.worker]]
+id = "test_thread"
+number = 3
+func = "src.test"
+
 [[jobs]]
     trigger = "interval"
     id = "test_thread"
