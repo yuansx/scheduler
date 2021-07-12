@@ -21,32 +21,30 @@ def create_database(key):
 
 
 database = create_database("db")
-ro_database = create_database("rb_db")
+ro_database = create_database("ro_db")
 
 
 class BaseModel(MyBaseModel):
     @classmethod
     def select(cls, *fields):
-        # cls._meta.database = ro_database
+        cls._meta.database = ro_database
         ret = super(BaseModel, cls).select(cls, *fields)
-        # cls._meta.database = database
+        cls._meta.database = database
         return ret
 
     @classmethod
     def raw(cls, sql, *params):
         if sql.lower().startswith('select'):
-            # cls._meta.database = ro_database
-            pass
+            cls._meta.database = ro_database
         else:
-            # cls._meta.database = database
-            pass
+            cls._meta.database = database
         return super(BaseModel, cls).raw(cls, sql, *params)
 
     class Meta:
         database = database
 
 
-class CMasterTaskState(BaseModel):
+class DMasterTaskState(BaseModel):
     action = CharField(constraints=[SQL("DEFAULT ''")], index=True)
     add_time_stamp = DateTimeField(column_name='addTimeStamp', constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
     ftime = BigIntegerField(constraints=[SQL("DEFAULT 0")])
@@ -56,7 +54,7 @@ class CMasterTaskState(BaseModel):
     state = CharField(constraints=[SQL("DEFAULT 'init'")], index=True)
 
     class Meta:
-        table_name = 'cMasterTaskState'
+        table_name = 'DMasterTaskState'
         indexes = (
             (('ftime', 'action'), True),
         )

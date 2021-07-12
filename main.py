@@ -97,7 +97,7 @@ class CMain(object):
             self._add_job(job)
 
     def _init(self):
-        self._init_address()
+        self._init_master_config()
         self._init_log()
         self._init_scheduler()
         self._load_jobs()
