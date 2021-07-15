@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 from src.util.master_worker import DMaster, DWorker
 from src.db.models import DTaskMasterState
-from random import randint
-
 
 
 class MysqlMaster(DMaster):
@@ -23,7 +21,7 @@ class MysqlMaster(DMaster):
         return ret
 
     def produce_list(self, time_stamp: int) -> list:
-        return range(10)
+        return list(range(10))
 
     def set_master_state(self, time_stamp: int, data, state: str):
         where_cond = (DTaskMasterState.action == self.action) & (DTaskMasterState.ftime == time_stamp)

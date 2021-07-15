@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import time
-import os
-from multiprocessing.managers import BaseManager
-from multiprocessing import Queue
 from multiprocessing import Process
 import queue
 from src.util.log import log_init, log_error, log_warning, log_debug
@@ -100,7 +97,7 @@ class DMaster(DManagerQueue):
     def produce_list(self, time_stamp: int) -> list:
         raise NotImplementedError('produce_list must be implemented by SchedulerMaster subclasses')
 
-    def set_master_state(self, time_stamp: int, data, state: str):
+    def set_master_state(self, time_list: list, data, state: str):
         raise NotImplementedError('set_master_state must be implemented by SchedulerMaster subclasses')
 
     def operate_error(self, operator, data, msg):
@@ -157,7 +154,7 @@ class DMaster(DManagerQueue):
             data = self.scramble_for_master(cur_time)
             if data:
                 self.task_queue_put(cur_time)
-                self.set_master_state(cur_time, data, 'success')
+                self.set_master_state([cur_time], data, 'success')
         self.do_result(cur_time)
 
 
@@ -192,7 +189,7 @@ class DWorker(Process, DManagerQueue):
         log_level = log_config.get('level', 4)
         log_path = log_config.get('path', './log')
         proj = self._worker_name()
-        log_init(self._name, log_path, proj, log_level)
+        log_init(self._worker_name(), log_path, proj, log_level)
         set_process_name(proj)
 
     def _signal_terminate(self, sig_id, frame):
@@ -221,6 +218,7 @@ class DWorker(Process, DManagerQueue):
             result_queue = self.get_result_queue()
         except BaseException as e:
             log_warning(e)
+            return
         if not task_queue:
             return
         while True:

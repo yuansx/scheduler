@@ -14,5 +14,6 @@ def get_ip_address(if_name):
 def set_process_name(name):
     setproctitle.setproctitle(name)
 
+
 if '__main__' == __name__:
     print(get_ip_address('eth0'))

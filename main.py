@@ -6,10 +6,8 @@ cur_path = os.path.split(os.path.realpath(os.sys.argv[0]))[0]
 os.environ['base_path'] = cur_path
 
 
-#from apscheduler.schedulers.gevent import GeventScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
-from apscheduler.executors.gevent import GeventExecutor
 from apscheduler.events import *
 from src.util.log import log_init, log_info, log_warning, log_error, add_logger
 from src.util.util import get_ip_address, set_process_name
@@ -26,7 +24,6 @@ import time
 
 class CMain(object):
     def __init__(self):
-        #self._scheduler = GeventScheduler()
         self._scheduler = BackgroundScheduler()
         self._jobs = {}
         self._workers = {}
@@ -77,7 +74,6 @@ class CMain(object):
         scheduler = config["common"].get("scheduler", {})
         executors = {
             'default': ThreadPoolExecutor(scheduler.get('thread_num', 20)),
-            #'default': GeventExecutor(),
             'processpool': ProcessPoolExecutor(scheduler.get('process_num', 5)),
         }
         job_defaults = {
@@ -110,7 +106,8 @@ class CMain(object):
                 continue
             self._add_job(job)
 
-    def _import_class(self, worker_class):
+    @staticmethod
+    def _import_class(worker_class):
         parts = worker_class.split(":", 1)
         if len(parts) == 1:
             raise ValueError('Invalid format of worker class')
@@ -121,8 +118,7 @@ class CMain(object):
             __import__(module)
         except ImportError:
             if module.endswith(".py") and os.path.exists(module):
-                raise ImportError("Failed to find application, did "
-                    "you mean '%s:%s'?" % (module.rsplit(".", 1)[0], obj))
+                raise ImportError("Failed to find application, did you mean '%s:%s'?" % (module.rsplit(".", 1)[0], obj))
             else:
                 raise
 
@@ -182,11 +178,6 @@ class CMain(object):
         signal.signal(signal.SIGINT, self._signal_terminate)
         signal.signal(signal.SIGCHLD, self._signal_child)
 
-    @staticmethod
-    def _monkey_patch():
-        import gevent.monkey
-        gevent.monkey.patch_all()
-
     def _init(self):
         self._init_queue()
         self._init_manager()
@@ -195,7 +186,6 @@ class CMain(object):
         self._init_signal()
         self._init_scheduler()
         self._load_jobs()
-        #self._monkey_patch()
 
     def start(self):
         self._init()
