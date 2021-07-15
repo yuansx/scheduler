@@ -10,24 +10,24 @@
     path = "./log"
 
 [manager]
-interface = "eth0"
-port = 7070
+    interface = "eth0"
+    port = 7070
 
 [[manager.queue]]
-id = "test_thread"
-size = 1024
-func = "get_test_task_queue"
+    id = "test_thread"
+    feature = "task_queue"
+    func = "get_test_task_queue"
 
 
 [[manager.queue]]
-id = "test_thread"
-size = 1024
-func = "get_test_result_queue"
+    id = "test_thread"
+    feature = "result_queue"
+    func = "get_test_result_queue"
 
 [[manager.worker]]
-id = "test_thread"
-number = 3
-func = "src.test"
+    id = "test_thread"
+    number = 3
+    class = "src.test:MyTest"
 
 [[jobs]]
     trigger = "interval"

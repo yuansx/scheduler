@@ -44,17 +44,18 @@ class BaseModel(MyBaseModel):
         database = database
 
 
-class DMasterTaskState(BaseModel):
+class DTaskMasterState(BaseModel):
     action = CharField(constraints=[SQL("DEFAULT ''")], index=True)
     add_time_stamp = DateTimeField(column_name='addTimeStamp', constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
     ftime = BigIntegerField(constraints=[SQL("DEFAULT 0")])
     id = BigAutoField()
     mod_time_stamp = DateTimeField(column_name='modTimeStamp', constraints=[SQL("DEFAULT CURRENT_TIMESTAMP")])
     owner = CharField(constraints=[SQL("DEFAULT ''")])
+    secret_key = CharField(constraints=[SQL("DEFAULT ''")])
     state = CharField(constraints=[SQL("DEFAULT 'init'")], index=True)
 
     class Meta:
-        table_name = 'DMasterTaskState'
+        table_name = 'DTaskMasterState'
         indexes = (
             (('ftime', 'action'), True),
         )

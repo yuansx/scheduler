@@ -1,1 +1,2 @@
 region = "ap-guangzhou"
+job_list = ["test_thread"]

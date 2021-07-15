@@ -114,13 +114,6 @@ class CLog(object):
             return 0
 
     def init_logger(self):
-        if not self._proj:
-            main_pid = int(os.environ.get('main_pid', '0'))
-            pid = os.getpid()
-            if main_pid != pid:
-                raise Exception('xxxxxxxxxxxxxxxxxxxx {0}  {1}'.format(main_pid, pid))
-                prefix = '{0}.{1}'.format(os.environ.get('log_prefix'), pid)
-                self._init(prefix, os.environ.get('log_path'), prefix, int(os.environ.get('log_level')))
         if self._logger is None:
             self._logger = logging.getLogger(self._proj)
             self._logger.setLevel(logging.DEBUG)
@@ -200,21 +193,18 @@ def log_info(msg):
 def log_warning(msg):
     if sys.exc_info()[0] is not None:
         CLog.instance().log_warning(traceback.format_exc())
-        sys.exc_clear()
     CLog.instance().log_warning(msg)
 
 
 def log_error(msg):
     if sys.exc_info()[0] is not None:
         CLog.instance().log_error(traceback.format_exc())
-        sys.exc_clear()
     CLog.instance().log_error(msg)
 
 
 def log_critical(msg):
     if sys.exc_info()[0] is not None:
         CLog.instance().log_critical(traceback.format_exc())
-        sys.exc_clear()
     CLog.instance().log_critical(msg)
 
 
@@ -231,8 +221,12 @@ class LogStream(logging.Handler):
 
 
 def add_logger(name, level=None):
-    level = level or CLog.LEVEL_MAP[int(os.environ.get('log_level', '4'))]
-    log_info(level)
+    try:
+        from src import config
+        c_level = config["common"].get("log", {}).get("level", 3)
+    except:
+        c_level = 3
+    level = level or c_level
     _logger = logging.getLogger(name)
     _logger.setLevel(level)
     _logger.propagate = False
