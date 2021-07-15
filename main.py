@@ -43,6 +43,8 @@ class CMain(object):
         proj = log_config.get('project', 'scheduler')
         log_init(proj, log_path, prefix, log_level)
         add_logger('apscheduler', logging.WARNING)
+        if 'project' in config['base']:
+            proj = config['base']['project']
         set_process_name(proj)
 
     def _handler_event(self, event):
