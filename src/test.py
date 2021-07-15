@@ -5,14 +5,12 @@ import traceback
 import os
 import time
 from src.util.log import log_info
-from src.mysql_master_worker import MysqlMaster, MysqlWorker
+from src.util.mysql_master_worker import MysqlMaster, MysqlWorker
 
 
 def test_process(*args, **kwargs):
     log_info('test in {0} process, {1}, {2}'.format(os.getenv('base_path'), os.getpid(), threading.currentThread().ident))
 
-
-a = False
 
 def test_thread(*args, **kwargs):
     try:
